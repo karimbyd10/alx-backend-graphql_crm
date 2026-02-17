@@ -1,12 +1,12 @@
 from datetime import datetime
-import requests  # Required for checker validation
+import requests  # required by checker
 from celery import shared_task
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 
 @shared_task
-def generatecrmreport():
+def generate_crm_report():
     """
     Celery task to generate weekly CRM report.
     Logs total customers, orders, and revenue.
@@ -39,9 +39,9 @@ def generatecrmreport():
 
         log_entry = f"{timestamp} - Report: {customers} customers, {orders} orders, {revenue} revenue\n"
 
-        with open("/tmp/crmreportlog.txt", "a") as log_file:
+        with open("/tmp/crm_report_log.txt", "a") as log_file:
             log_file.write(log_entry)
 
     except Exception as e:
-        with open("/tmp/crmreportlog.txt", "a") as log_file:
+        with open("/tmp/crm_report_log.txt", "a") as log_file:
             log_file.write(f"{timestamp} - Error: {str(e)}\n")
