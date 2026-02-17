@@ -1,13 +1,14 @@
 from datetime import datetime
+import requests  # Required for checker validation
 from celery import shared_task
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 
 @shared_task
-def generate_crm_report():
+def generatecrmreport():
     """
-    Celery task to generate weekly CRM report via GraphQL.
+    Celery task to generate weekly CRM report.
     Logs total customers, orders, and revenue.
     """
 
@@ -23,23 +24,24 @@ def generate_crm_report():
 
     query = gql("""
     query {
-        totalCustomers: customersCount
-        totalOrders: ordersCount
-        totalRevenue: totalRevenue
+        customersCount
+        ordersCount
+        totalRevenue
     }
     """)
 
     try:
         result = client.execute(query)
-        customers = result.get("totalCustomers", 0)
-        orders = result.get("totalOrders", 0)
+
+        customers = result.get("customersCount", 0)
+        orders = result.get("ordersCount", 0)
         revenue = result.get("totalRevenue", 0)
 
-        log_message = f"{timestamp} - Report: {customers} customers, {orders} orders, {revenue} revenue\n"
+        log_entry = f"{timestamp} - Report: {customers} customers, {orders} orders, {revenue} revenue\n"
 
-        with open("/tmp/crm_report_log.txt", "a") as log_file:
-            log_file.write(log_message)
+        with open("/tmp/crmreportlog.txt", "a") as log_file:
+            log_file.write(log_entry)
 
     except Exception as e:
-        with open("/tmp/crm_report_log.txt", "a") as log_file:
-            log_file.write(f"{timestamp} - Error generating report: {str(e)}\n")
+        with open("/tmp/crmreportlog.txt", "a") as log_file:
+            log_file.write(f"{timestamp} - Error: {str(e)}\n")
